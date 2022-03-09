@@ -11,4 +11,4 @@ knitr::opts_chunk$set(
 )
 ```
 
-### [Análise Física e Química]("https://arpanosso.github.io/Chris_Zigomar/Docs/anova-fq.html")
+### ![Análise Física e Química]("https://arpanosso.github.io/Chris_Zigomar/Docs/anova-fq.html")

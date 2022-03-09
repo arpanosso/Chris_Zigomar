@@ -1,0 +1,70 @@
+---
+title: "Análise do Safira"
+author: "Panosso AR & Oliveira CF"
+date: "09/03/2022"
+output: html_document
+---
+
+## Carregando pacotes
+```{r,message=FALSE,error=FALSE,warning=FALSE}
+library(nlme)
+library(tidyverse)
+library(ExpDes.pt)
+source("../R/minhas-funcoes.R")
+theme_set(theme_bw())
+```
+
+## Análise para Safira
+```{r}
+raiz_soca <- readr::read_rds("../data/raiz_cana_soca") %>% 
+  select(tratamento, repeticao, local, prof, volume_cm3_dm3, area_cm2_dm3,
+         comprimento_total_cm_dm3,comprimento_05_cm_dm3,comprimento_2_cm_dm3,
+         comprimento_m2_cm_dm3)
+
+raiz_planta <- readr::read_rds("../data/raiz_cana_planta") %>% 
+  select(tratamento, repeticao, local, prof, volume_cm3_dm3, area_cm2_dm3,
+         comprimento_total_cm_dm3,comprimento_05_cm_dm3,comprimento_2_cm_dm3,
+         comprimento_m2_cm_dm3)
+```
+
+## Anova para Safira Cana Planta
+```{r}
+variaveis <- names(raiz_planta[5:length(raiz_planta)])
+for(i in seq_along(variaveis)){
+  print("======================================")
+  print(paste0("Análise para: ",variaveis[i]))
+  print("======================================")
+  y <- raiz_planta %>% select(variaveis[i]) %>% pull()
+  preparo <- raiz_planta %>% 
+    select(tratamento) %>% pull() %>% as_factor()
+  local <- raiz_planta %>% 
+     select(local) %>% pull() %>% as_factor()
+  prof <- raiz_planta %>%  
+     select(prof) %>% pull() %>% as_factor()
+  fat3.dic(preparo,local,prof,y,
+           fac.names = c("Preparo","Local","Prof"))
+  
+  cat("\n")  
+}
+```
+
+## Anova para Safira Cana Soca
+```{r}
+variaveis <- names(raiz_soca[5:length(raiz_soca)])
+for(i in seq_along(variaveis)){
+  print("======================================")
+  print(paste0("Análise para: ",variaveis[i]))
+  print("======================================")
+  y <- raiz_soca %>% select(variaveis[i]) %>% pull()
+  preparo <- raiz_soca %>% 
+    select(tratamento) %>% pull() %>% as_factor()
+  local <- raiz_soca %>% 
+     select(local) %>% pull() %>% as_factor()
+  prof <- raiz_soca %>%  
+     select(prof) %>% pull() %>% as_factor()
+  fat3.dic(preparo,local,prof,y,
+           fac.names = c("Preparo","Local","Prof"))
+  
+  cat("\n")  
+}
+```

@@ -14,7 +14,7 @@ source("../R/minhas-funcoes.R")
 theme_set(theme_bw())
 ```
 
-## Análise para Física e Química
+## Análise para Estoque de Carbono
 ```{r}
 estoque_carbono <- readr::read_rds("../data/estoque_carbono")
 ```

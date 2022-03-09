@@ -21,7 +21,6 @@ fisica_quimica <- readr::read_rds("../data/fisica_quimica")
 
 ## Análise de Variância
 ```{r}
-fisica_quimica
 variaveis <- names(fisica_quimica[7:length(fisica_quimica)])
 for(j in 1:2){
   for(i in seq_along(variaveis)){

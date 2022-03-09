@@ -1,0 +1,58 @@
+---
+title: "Análise Biomassa Seca da Raiz"
+author: "Panosso AR & Oliveira CF"
+date: "09/03/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Carregando pacotes
+```{r,message=FALSE,error=FALSE,warning=FALSE}
+library(nlme)
+library(tidyverse)
+library(ExpDes.pt)
+source("../R/minhas-funcoes.R")
+theme_set(theme_bw())
+```
+
+## Análise para Biomassa
+```{r}
+biomassa <- readr::read_rds("../data/biomassa")
+```
+
+## Análise de Variância
+
+```{r}
+variaveis <- names(biomassa[7:length(biomassa)])
+ciclos <- unique(biomassa$Ciclo)
+for(j in seq_along(ciclos)){
+  for(i in seq_along(variaveis)){
+    print("======================================")
+    print(paste0("Análise para: ",variaveis[i],"; Ciclo: ",ciclos[j]))
+    print("======================================")
+    y <- biomassa %>% filter(Ciclo==ciclos[j]) %>%  select(variaveis[i]) %>% pull()
+    preparo <- biomassa %>% 
+      dplyr::filter(Ciclo==ciclos[j]) %>% select(preparo) %>% pull() %>% as_factor()
+    local <- biomassa %>% 
+      dplyr::filter(Ciclo==ciclos[j]) %>% select(local) %>% pull() %>% as_factor()
+    bloco <- biomassa %>% 
+      dplyr::filter(Ciclo==ciclos[j]) %>% select(repeticao) %>% pull() %>% as_factor()
+    prof <- biomassa %>%  
+      dplyr::filter(Ciclo==ciclos[j]) %>% select(prof) %>% pull() %>% as_factor()
+    parc <- interaction(bloco, preparo, drop=TRUE)
+    subp <- interaction(bloco, preparo, local, drop=TRUE)
+    mod <- lme(y~bloco+preparo*local*prof, random=~1|parc/subp,
+               method="ML")
+    print(anova(mod))
+    print("----------------------------------")
+    fat3.dbc(preparo,local,prof,bloco,y,
+             fac.names = c("Preparo","Local","Prof"))
+    
+    cat("\n")  
+  }
+}
+```

@@ -1,0 +1,56 @@
+---
+title: "Análise Física e Química"
+author: "Panosso AR & Oliveira CF"
+date: "09/03/2022"
+output: html_document
+---
+
+## Carregando pacotes
+```{r,message=FALSE,error=FALSE,warning=FALSE}
+library(nlme)
+library(tidyverse)
+library(ExpDes.pt)
+source("../R/minhas-funcoes.R")
+theme_set(theme_bw())
+```
+
+## Análise para Física e Química
+```{r}
+fisica_quimica <- readr::read_rds("../data/fisica_quimica")
+```
+
+## Análise de Variância
+```{r}
+fisica_quimica
+variaveis <- names(fisica_quimica[7:length(fisica_quimica)])
+for(j in 1:2){
+  for(i in seq_along(variaveis)){
+    print("======================================")
+    print(paste0("Análise para: ",variaveis[i],"; Ciclo: ",j))
+    print("======================================")
+    y <- fisica_quimica %>% filter(ciclo==j) %>%  select(variaveis[i]) %>% pull()
+    preparo <- fisica_quimica %>% 
+      dplyr::filter(ciclo==j) %>% select(preparo) %>% pull() %>% as_factor()
+    local <- fisica_quimica %>% 
+      dplyr::filter(ciclo==j) %>% select(local) %>% pull() %>% as_factor()
+    bloco <- fisica_quimica %>% 
+      dplyr::filter(ciclo==j) %>% select(repeticao) %>% pull() %>% as_factor()
+    prof <- fisica_quimica %>%  
+      dplyr::filter(ciclo==j) %>% select(prof) %>% pull() %>% as_factor()
+    parc <- interaction(bloco, preparo, drop=TRUE)
+    subp <- interaction(bloco, preparo, local, drop=TRUE)
+    mod <- lme(y~bloco+preparo*local*prof, random=~1|parc/subp,
+               method="ML")
+    print(anova(mod))
+    print("----------------------------------")
+    fat3.dbc(preparo,local,prof,bloco,y,
+             fac.names = c("Preparo","Local","Prof"))
+    
+    cat("\n")  
+  }
+}
+```
+
+
+
+

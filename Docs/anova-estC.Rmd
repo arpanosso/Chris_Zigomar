@@ -1,0 +1,48 @@
+---
+title: "Análise Estoque de Carbono"
+author: "Panosso AR & Oliveira CF"
+date: "09/03/2022"
+output: html_document
+---
+
+## Carregando pacotes
+```{r,message=FALSE,error=FALSE,warning=FALSE}
+library(nlme)
+library(tidyverse)
+library(ExpDes.pt)
+source("../R/minhas-funcoes.R")
+theme_set(theme_bw())
+```
+
+## Análise para Física e Química
+```{r}
+estoque_carbono <- readr::read_rds("../data/estoque_carbono")
+```
+
+## Análise de Variância
+```{r}
+variaveis <- names(estoque_carbono[6:length(estoque_carbono)])
+for(j in 1:2){
+  for(i in seq_along(variaveis)){
+    print("======================================")
+    print(paste0("Análise para: ",variaveis[i],"; Ciclo: ",j))
+    print("======================================")
+    y <- estoque_carbono %>% filter(ciclo==j) %>%  select(variaveis[i]) %>% pull()
+    preparo <- estoque_carbono %>% 
+      dplyr::filter(ciclo==j) %>% select(preparo) %>% pull() %>% as_factor()
+    bloco <- estoque_carbono %>% 
+      dplyr::filter(ciclo==j) %>% select(repeticao) %>% pull() %>% as_factor()
+    prof <- estoque_carbono %>%  
+      dplyr::filter(ciclo==j) %>% select(prof) %>% pull() %>% as_factor()
+    psub2.dbc(preparo,prof,bloco,y,
+             fac.names = c("Preparo","Prof"))
+    
+    cat("\n")  
+  }
+}
+```
+
+
+
+
+

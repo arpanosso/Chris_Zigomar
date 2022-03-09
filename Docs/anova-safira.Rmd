@@ -68,3 +68,346 @@ for(i in seq_along(variaveis)){
   cat("\n")  
 }
 ```
+
+## Visualização de Dados Cana Planta
+
+```{r}
+raiz_planta %>% 
+  mutate(
+    tratamento = case_when(
+      tratamento == "T1" ~ "PC",
+      tratamento == "T2" ~ "Adubo Verde",
+      tratamento == "T4" ~ "Rip Strip",
+      tratamento == "T6" ~ "PD",
+    ),
+    prof = case_when(
+      prof == "P1" ~ "0,00-0,20",
+      prof == "P2" ~ "0,20-0,40",
+      prof == "P3" ~ "0,40-0,60",
+    )
+  ) %>% 
+  group_by(tratamento, prof) %>% 
+  summarise(Y = mean(volume_cm3_dm3,na.rm=TRUE),
+            epm = meu_erro_padrao(volume_cm3_dm3)) %>% 
+  ggplot(aes(x=tratamento, y=Y, fill=prof)) +
+  geom_col(position = "dodge",color="black") +
+  geom_errorbar(aes(ymin=Y-epm, ymax=Y+epm), width=.2,                 position=position_dodge(.9))+
+  labs(x="Preparo",
+       y=expression(paste("Volume radicular (",cm^{3}," ", dm^{-3},")"),sep=""),
+       fill = "Profundidade (m)")+
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values=c('#999999','#E69F00',"#228B22"))
+```
+
+```{r}
+raiz_planta %>% 
+  mutate(
+    tratamento = case_when(
+      tratamento == "T1" ~ "PC",
+      tratamento == "T2" ~ "Adubo Verde",
+      tratamento == "T4" ~ "Rip Strip",
+      tratamento == "T6" ~ "PD",
+    ),
+    prof = case_when(
+      prof == "P1" ~ "0,00-0,20",
+      prof == "P2" ~ "0,20-0,40",
+      prof == "P3" ~ "0,40-0,60",
+    )
+  ) %>% 
+  group_by(tratamento, prof) %>% 
+  summarise(Y = mean(area_cm2_dm3,na.rm=TRUE),
+            epm = meu_erro_padrao(area_cm2_dm3)) %>% 
+  ggplot(aes(x=tratamento, y=Y, fill=prof)) +
+  geom_col(position = "dodge",color="black") +
+  geom_errorbar(aes(ymin=Y-epm, ymax=Y+epm), width=.2,                 position=position_dodge(.9))+
+  labs(x="Preparo",
+       y=expression(paste("Área radicular (",cm^{2}," ", dm^{-3},")"),sep=""),
+       fill = "Profundidade (m)")+
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values=c('#999999','#E69F00',"#228B22"))
+```
+
+```{r}
+raiz_planta %>% 
+  mutate(
+    tratamento = case_when(
+      tratamento == "T1" ~ "PC",
+      tratamento == "T2" ~ "Adubo Verde",
+      tratamento == "T4" ~ "Rip Strip",
+      tratamento == "T6" ~ "PD",
+    ),
+    prof = case_when(
+      prof == "P1" ~ "0,00-0,20",
+      prof == "P2" ~ "0,20-0,40",
+      prof == "P3" ~ "0,40-0,60",
+    )
+  ) %>% 
+  group_by(tratamento, prof) %>% 
+  summarise(Y = mean(comprimento_total_cm_dm3,na.rm=TRUE),
+            epm = meu_erro_padrao(comprimento_total_cm_dm3)) %>% 
+  ggplot(aes(x=tratamento, y=Y, fill=prof)) +
+  geom_col(position = "dodge",color="black") +
+  geom_errorbar(aes(ymin=Y-epm, ymax=Y+epm), width=.2,                 position=position_dodge(.9))+
+  labs(x="Preparo",
+       y=expression(paste("Comprimento Radicular Total (",cm," ", dm^{-3},")"),sep=""),
+       fill = "Profundidade (m)")+
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values=c('#999999','#E69F00',"#228B22"))
+```
+
+
+```{r}
+raiz_planta %>% 
+  mutate(
+    tratamento = case_when(
+      tratamento == "T1" ~ "PC",
+      tratamento == "T2" ~ "Adubo Verde",
+      tratamento == "T4" ~ "Rip Strip",
+      tratamento == "T6" ~ "PD",
+    ),
+    prof = case_when(
+      prof == "P1" ~ "0,00-0,20",
+      prof == "P2" ~ "0,20-0,40",
+      prof == "P3" ~ "0,40-0,60",
+    )
+  ) %>% 
+  group_by(tratamento, prof) %>% 
+  summarise(Y = mean(comprimento_05_cm_dm3,na.rm=TRUE),
+            epm = meu_erro_padrao(comprimento_05_cm_dm3)) %>% 
+  ggplot(aes(x=tratamento, y=Y, fill=prof)) +
+  geom_col(position = "dodge",color="black") +
+  geom_errorbar(aes(ymin=Y-epm, ymax=Y+epm), width=.2,                 position=position_dodge(.9))+
+  labs(x="Preparo",
+       y=expression(paste(CR[0.5]," (",cm," ", dm^{-3},")"),sep=""),
+       fill = "Profundidade (m)")+
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values=c('#999999','#E69F00',"#228B22"))
+```
+
+```{r}
+raiz_planta %>% 
+  mutate(
+    tratamento = case_when(
+      tratamento == "T1" ~ "PC",
+      tratamento == "T2" ~ "Adubo Verde",
+      tratamento == "T4" ~ "Rip Strip",
+      tratamento == "T6" ~ "PD",
+    ),
+    prof = case_when(
+      prof == "P1" ~ "0,00-0,20",
+      prof == "P2" ~ "0,20-0,40",
+      prof == "P3" ~ "0,40-0,60",
+    )
+  ) %>% 
+  group_by(tratamento, prof) %>% 
+  summarise(Y = mean(comprimento_2_cm_dm3,na.rm=TRUE),
+            epm = meu_erro_padrao(comprimento_2_cm_dm3)) %>% 
+  ggplot(aes(x=tratamento, y=Y, fill=prof)) +
+  geom_col(position = "dodge",color="black") +
+  geom_errorbar(aes(ymin=Y-epm, ymax=Y+epm), width=.2,                 position=position_dodge(.9))+
+  labs(x="Preparo",
+       y=expression(paste(CR[0.5-2.0]," (",cm," ", dm^{-3},")"),sep=""),
+       fill = "Profundidade (m)")+
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values=c('#999999','#E69F00',"#228B22"))
+```
+
+```{r}
+raiz_planta %>% 
+  mutate(
+    tratamento = case_when(
+      tratamento == "T1" ~ "PC",
+      tratamento == "T2" ~ "Adubo Verde",
+      tratamento == "T4" ~ "Rip Strip",
+      tratamento == "T6" ~ "PD",
+    ),
+    prof = case_when(
+      prof == "P1" ~ "0,00-0,20",
+      prof == "P2" ~ "0,20-0,40",
+      prof == "P3" ~ "0,40-0,60",
+    )
+  ) %>% 
+  group_by(tratamento, prof) %>% 
+  summarise(Y = mean(comprimento_m2_cm_dm3,na.rm=TRUE),
+            epm = meu_erro_padrao(comprimento_m2_cm_dm3)) %>% 
+  ggplot(aes(x=tratamento, y=Y, fill=prof)) +
+  geom_col(position = "dodge",color="black") +
+  geom_errorbar(aes(ymin=Y-epm, ymax=Y+epm), width=.2,                 position=position_dodge(.9))+
+  labs(x="Preparo",
+       y=expression(paste(CR[2.0]," (",cm," ", dm^{-3},")"),sep=""),
+       fill = "Profundidade (m)")+
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values=c('#999999','#E69F00',"#228B22"))
+```
+
+
+## Visualização de Dados Cana Soca
+
+```{r}
+raiz_soca %>% 
+  mutate(
+    tratamento = case_when(
+      tratamento == "1" ~ "PC",
+      tratamento == "2" ~ "Adubo Verde",
+      tratamento == "4" ~ "Rip Strip",
+      tratamento == "6" ~ "PD",
+    ),
+    prof = case_when(
+      prof == "P1" ~ "0,00-0,20",
+      prof == "P2" ~ "0,20-0,40",
+      prof == "P3" ~ "0,40-0,60",
+    )
+  ) %>% 
+  group_by(tratamento, prof) %>% 
+  summarise(Y = mean(volume_cm3_dm3,na.rm=TRUE),
+            epm = meu_erro_padrao(volume_cm3_dm3)) %>% 
+  ggplot(aes(x=tratamento, y=Y, fill=prof)) +
+  geom_col(position = "dodge",color="black") +
+  geom_errorbar(aes(ymin=Y-epm, ymax=Y+epm), width=.2,                 position=position_dodge(.9))+
+  labs(x="Preparo",
+       y=expression(paste("Volume radicular (",cm^{3}," ", dm^{-3},")"),sep=""),
+       fill = "Profundidade (m)")+
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values=c('#999999','#E69F00',"#228B22"))
+```
+
+```{r}
+raiz_soca %>% 
+  mutate(
+    tratamento = case_when(
+      tratamento == "1" ~ "PC",
+      tratamento == "2" ~ "Adubo Verde",
+      tratamento == "4" ~ "Rip Strip",
+      tratamento == "6" ~ "PD",
+    ),
+    prof = case_when(
+      prof == "P1" ~ "0,00-0,20",
+      prof == "P2" ~ "0,20-0,40",
+      prof == "P3" ~ "0,40-0,60",
+    )
+  ) %>% 
+  group_by(tratamento, prof) %>% 
+  summarise(Y = mean(area_cm2_dm3,na.rm=TRUE),
+            epm = meu_erro_padrao(area_cm2_dm3)) %>% 
+  ggplot(aes(x=tratamento, y=Y, fill=prof)) +
+  geom_col(position = "dodge",color="black") +
+  geom_errorbar(aes(ymin=Y-epm, ymax=Y+epm), width=.2,                 position=position_dodge(.9))+
+  labs(x="Preparo",
+       y=expression(paste("Área radicular (",cm^{2}," ", dm^{-3},")"),sep=""),
+       fill = "Profundidade (m)")+
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values=c('#999999','#E69F00',"#228B22"))
+```
+
+```{r}
+raiz_soca %>% 
+  mutate(
+    tratamento = case_when(
+      tratamento == "1" ~ "PC",
+      tratamento == "2" ~ "Adubo Verde",
+      tratamento == "4" ~ "Rip Strip",
+      tratamento == "6" ~ "PD",
+    ),
+    prof = case_when(
+      prof == "P1" ~ "0,00-0,20",
+      prof == "P2" ~ "0,20-0,40",
+      prof == "P3" ~ "0,40-0,60",
+    )
+  ) %>% 
+  group_by(tratamento, prof) %>% 
+  summarise(Y = mean(comprimento_total_cm_dm3,na.rm=TRUE),
+            epm = meu_erro_padrao(comprimento_total_cm_dm3)) %>% 
+  ggplot(aes(x=tratamento, y=Y, fill=prof)) +
+  geom_col(position = "dodge",color="black") +
+  geom_errorbar(aes(ymin=Y-epm, ymax=Y+epm), width=.2,                 position=position_dodge(.9))+
+  labs(x="Preparo",
+       y=expression(paste("Comprimento Radicular Total (",cm," ", dm^{-3},")"),sep=""),
+       fill = "Profundidade (m)")+
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values=c('#999999','#E69F00',"#228B22"))
+```
+
+
+```{r}
+raiz_soca %>% 
+  mutate(
+    tratamento = case_when(
+      tratamento == "1" ~ "PC",
+      tratamento == "2" ~ "Adubo Verde",
+      tratamento == "4" ~ "Rip Strip",
+      tratamento == "6" ~ "PD",
+    ),
+    prof = case_when(
+      prof == "P1" ~ "0,00-0,20",
+      prof == "P2" ~ "0,20-0,40",
+      prof == "P3" ~ "0,40-0,60",
+    )
+  ) %>% 
+  group_by(tratamento, prof) %>% 
+  summarise(Y = mean(comprimento_05_cm_dm3,na.rm=TRUE),
+            epm = meu_erro_padrao(comprimento_05_cm_dm3)) %>% 
+  ggplot(aes(x=tratamento, y=Y, fill=prof)) +
+  geom_col(position = "dodge",color="black") +
+  geom_errorbar(aes(ymin=Y-epm, ymax=Y+epm), width=.2,                 position=position_dodge(.9))+
+  labs(x="Preparo",
+       y=expression(paste(CR[0.5]," (",cm," ", dm^{-3},")"),sep=""),
+       fill = "Profundidade (m)")+
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values=c('#999999','#E69F00',"#228B22"))
+```
+
+```{r}
+raiz_soca %>% 
+  mutate(
+    tratamento = case_when(
+      tratamento == "1" ~ "PC",
+      tratamento == "2" ~ "Adubo Verde",
+      tratamento == "4" ~ "Rip Strip",
+      tratamento == "6" ~ "PD",
+    ),
+    prof = case_when(
+      prof == "P1" ~ "0,00-0,20",
+      prof == "P2" ~ "0,20-0,40",
+      prof == "P3" ~ "0,40-0,60",
+    )
+  ) %>% 
+  group_by(tratamento, prof) %>% 
+  summarise(Y = mean(comprimento_2_cm_dm3,na.rm=TRUE),
+            epm = meu_erro_padrao(comprimento_2_cm_dm3)) %>% 
+  ggplot(aes(x=tratamento, y=Y, fill=prof)) +
+  geom_col(position = "dodge",color="black") +
+  geom_errorbar(aes(ymin=Y-epm, ymax=Y+epm), width=.2,                 position=position_dodge(.9))+
+  labs(x="Preparo",
+       y=expression(paste(CR[0.5-2.0]," (",cm," ", dm^{-3},")"),sep=""),
+       fill = "Profundidade (m)")+
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values=c('#999999','#E69F00',"#228B22"))
+```
+
+```{r}
+raiz_soca %>% 
+  mutate(
+    tratamento = case_when(
+      tratamento == "1" ~ "PC",
+      tratamento == "2" ~ "Adubo Verde",
+      tratamento == "4" ~ "Rip Strip",
+      tratamento == "6" ~ "PD",
+    ),
+    prof = case_when(
+      prof == "P1" ~ "0,00-0,20",
+      prof == "P2" ~ "0,20-0,40",
+      prof == "P3" ~ "0,40-0,60",
+    )
+  ) %>% 
+  group_by(tratamento, prof) %>% 
+  summarise(Y = mean(comprimento_m2_cm_dm3,na.rm=TRUE),
+            epm = meu_erro_padrao(comprimento_m2_cm_dm3)) %>% 
+  ggplot(aes(x=tratamento, y=Y, fill=prof)) +
+  geom_col(position = "dodge",color="black") +
+  geom_errorbar(aes(ymin=Y-epm, ymax=Y+epm), width=.2,                 position=position_dodge(.9))+
+  labs(x="Preparo",
+       y=expression(paste(CR[2.0]," (",cm," ", dm^{-3},")"),sep=""),
+       fill = "Profundidade (m)")+
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values=c('#999999','#E69F00',"#228B22"))
+```

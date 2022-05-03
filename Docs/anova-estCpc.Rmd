@@ -1,0 +1,54 @@
+---
+title: "Análise Estoque de Carbono por camada"
+author: "Panosso AR & Oliveira CF"
+date: "09/03/2022"
+output: html_document
+---
+
+## Carregando pacotes
+```{r,message=FALSE,error=FALSE,warning=FALSE}
+library(nlme)
+library(tidyverse)
+library(ExpDes.pt)
+source("../R/minhas-funcoes.R")
+theme_set(theme_bw())
+```
+
+## Análise para Estoque de Carbono
+```{r}
+estoque_carbono <- readr::read_rds("../data/estoque_carbono")
+```
+
+## Análise de Variância
+```{r}
+variaveis <- names(estoque_carbono[6:length(estoque_carbono)])
+camada <- unique(estoque_carbono$prof)
+for(j in 1:2){
+  for(i in seq_along(variaveis)){
+    for(k in seq_along(camada)){
+      print("======================================")
+      print(paste0("Análise para: ",variaveis[i],"; Ciclo: ",j, "; Camada: ",camada[k]))
+      print("======================================")
+      y <- estoque_carbono %>% filter(ciclo==j & prof == camada[k]) %>%  select(variaveis[i]) %>% pull()
+      preparo <- estoque_carbono %>% 
+        dplyr::filter(ciclo==j & prof == camada[k]) %>% select(preparo) %>% pull() %>% as_factor()
+      bloco <- estoque_carbono %>% 
+        dplyr::filter(ciclo==j & prof == camada[k]) %>% select(repeticao) %>% pull() %>% as_factor()
+      prof <- estoque_carbono %>%  
+        dplyr::filter(ciclo==j & prof == camada[k]) %>% select(prof) %>% pull() %>% as_factor()
+      dbc(preparo,bloco,y)
+      
+      cat("\n")
+      print("===============")
+      print("    Médias     ")
+      print("===============")
+      print(tapply(y,preparo,mean))
+    }
+  }
+}
+```
+
+
+
+
+

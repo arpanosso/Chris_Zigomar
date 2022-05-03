@@ -1,0 +1,66 @@
+---
+title: "Análise Biomassa Seca da Raiz por Camada"
+author: "Panosso AR & Oliveira CF"
+date: "03/05/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Carregando pacotes
+```{r,message=FALSE,error=FALSE,warning=FALSE}
+library(nlme)
+library(tidyverse)
+library(ExpDes.pt)
+source("../R/minhas-funcoes.R")
+theme_set(theme_bw())
+```
+
+## Análise para Biomassa
+```{r}
+biomassa <- readr::read_rds("../data/biomassa")
+```
+
+## Análise de Variância
+
+```{r}
+variaveis <- names(biomassa[7:length(biomassa)])
+ciclos <- unique(biomassa$Ciclo)
+camada <- unique(biomassa$prof)
+for(j in seq_along(ciclos)){
+  for(i in seq_along(variaveis)){
+    for(k in 1:3){
+      print("============================================")
+      print(paste0("Análise para: ",variaveis[i],"; Ciclo: ",ciclos[j], "; Camada: ", k))
+      print("============================================")
+      y <- biomassa %>% filter(Ciclo==ciclos[j] & prof == k) %>%  select(variaveis[i]) %>% pull()
+      preparo <- biomassa %>%
+        dplyr::filter(Ciclo==ciclos[j] & prof == k) %>% select(preparo) %>% pull() %>% as_factor()
+      local <- biomassa %>%
+        dplyr::filter(Ciclo==ciclos[j] & prof == k) %>% select(local) %>% pull() %>% as_factor()
+      bloco <- biomassa %>%
+        dplyr::filter(Ciclo==ciclos[j] & prof == k) %>% select(repeticao) %>% pull() %>% as_factor()
+      prof <- biomassa %>%
+        dplyr::filter(Ciclo==ciclos[j] & prof == k) %>% select(prof) %>% pull() %>% as_factor()
+      parc <- interaction(bloco, preparo, drop=TRUE)
+      subp <- interaction(bloco, preparo, local, drop=TRUE)
+      mod <- lme(y~bloco+preparo*local, random=~1|parc/subp,
+                 method="ML")
+      print(anova(mod))
+      print("----------------------------------")
+      fat2.dbc(preparo,local,bloco,y,
+               fac.names = c("Preparo","Local"))
+      
+      cat("\n")
+      
+      print("===============")
+      print("    Médias     ")
+      print("===============")
+      print(tapply(y,data.frame(local,preparo),mean))
+    }
+  }
+}
+```

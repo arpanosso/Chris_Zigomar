@@ -4,6 +4,14 @@ library(readxl)
 # Lendo os bancos de dados
 fisica_quimica <- readxl::read_excel("data-raw/fisica-quimica.xlsx")
 dplyr::glimpse(fisica_quimica)
+
+
+usc <- fisica_quimica %>%
+  mutate(Usc = ifelse(Us <= 0, NA, Us)) %>%
+  mutate(Usc= ifelse(is.na(Usc), mean(Usc,na.rm=TRUE), Usc)) %>%
+  pull(Usc)
+
+fisica_quimica$Us <- usc
 write_rds(fisica_quimica,"data/fisica_quimica")
 
 # Est C

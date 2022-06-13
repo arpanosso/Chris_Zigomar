@@ -1,0 +1,230 @@
+---
+title: "Multivariada"
+author: "Panosso AR & Oliveira CF"
+date: '2022-06-13'
+output: html_document
+---
+## Carregando pacotes
+```{r,message=FALSE,error=FALSE,warning=FALSE}
+library(readxl)
+library(tidyverse)
+library(janitor)
+library(skimr)
+library(vegan)
+library(corrplot)
+source("../R/minhas-funcoes.R")
+theme_set(theme_bw())
+```
+
+## Carregando os Bancos de dados
+```{r}
+fisica_quimica <- readr::read_rds("../data/fisica_quimica")
+estoque_carbono <- readr::read_rds("../data/estoque_carbono")
+biomassa <- readr::read_rds("../data/biomassa")
+```
+
+
+### Resumindo Física e Química
+```{r}
+glimpse(fisica_quimica)
+
+dfq <- fisica_quimica %>% 
+  group_by( ciclo, preparo, repeticao, prof) %>%
+  summarise(Ds = mean(Ds, na.rm=TRUE),
+            Macro = mean(Macro, na.rm=TRUE),
+            Micro = mean(Micro, na.rm=TRUE),
+            # PT = mean(PT, na.rm=TRUE),
+            RP = mean(RP, na.rm=TRUE),
+            # Us = mean(Us, na.rm=TRUE),
+            P_r = mean(P_r, na.rm=TRUE),
+            # Ca = mean(Ca, na.rm=TRUE),
+            # Mg = mean(Mg, na.rm=TRUE),
+            pH  = mean(pH , na.rm=TRUE),
+            # V = mean(V, na.rm=TRUE),
+            SB = mean(SB, na.rm=TRUE),
+            # CTC = mean(CTC, na.rm=TRUE)
+  )
+dfq <- dfq %>% 
+  mutate(prof = str_remove_all(prof,"0,"))
+```
+
+
+### Resumento Estoque de Carbono
+```{r}
+estoque_carbono <- estoque_carbono %>% 
+  mutate(repeticao = paste0("R",repeticao))
+glimpse(estoque_carbono)
+
+destc <- estoque_carbono %>% 
+  group_by(ciclo, preparo, repeticao, prof) %>%
+  summarise(est_C = mean(est_C, na.rm=TRUE),
+            estoque_C = mean(estoque_C, na.rm=TRUE))
+```
+
+### Resumo biomassa
+```{r}
+biomassa <- biomassa %>% 
+  mutate(prof = case_when(
+    prof == 1 ~ "00-20",
+    prof == 2 ~ "20-40",
+    prof == 3 ~ "40-60",
+  ))
+dbio <- biomassa %>% 
+  group_by(Ciclo, preparo, repeticao, prof) %>%
+  summarise(kg_ha = mean(kg_ha, na.rm=TRUE))
+dbio <- dbio %>% 
+  mutate(Ciclo = ifelse(Ciclo == "Planta",1,2),
+         preparo = ifelse(preparo == "RipStrip", "Rip Strip", preparo))
+dfq$kg_ha <- NA
+for(i in 1:nrow(dfq)){
+  pf <- dfq[i,]$prof
+  ccl <- dfq[i,]$ciclo
+  prp <- dfq[i,]$preparo
+  rept <- dfq[i,]$repeticao
+  if(pf == "20-40" | pf == "40-60"){
+    aux <- dbio %>% filter(preparo == prp, Ciclo == ccl, repeticao == rept, prof == pf)
+    dfq$kg_ha[i] <- aux$kg_ha
+  }
+    if(pf == "00-05" | pf == "05-10"){
+    aux <- dbio %>% filter(preparo == prp, Ciclo == ccl, repeticao == rept, prof == "00-20")
+    dfq$kg_ha[i] <- aux$kg_ha*.25
+    }
+      if(pf == "10-20"){
+    aux <- dbio %>% filter(preparo == prp, Ciclo == ccl, repeticao == rept, prof == "00-20")
+    dfq$kg_ha[i] <- aux$kg_ha*.50
+  }
+}
+dfq$EstC <- destc$estoque_C
+dfq <- dfq %>% 
+  mutate(Biomassa= kg_ha) %>% 
+  select(-kg_ha) %>% 
+  ungroup()
+```
+
+### Estatística descritiva
+```{r}
+skim(dfq)
+```
+
+### Matriz de correlação linear
+```{r}
+profundidade <- dfq$prof %>% unique()
+
+for(i in 1:2){
+  for(j in 1:length(profundidade)){
+    da <- dfq %>% 
+      filter(ciclo == i, prof == profundidade[j]) %>% 
+      select(Ds:Biomassa)
+    
+    nomes  <- dfq %>% 
+      filter(ciclo == i, prof == profundidade[j]) %>% 
+      pull(preparo)
+    mc <- cor(da)
+    print("##########################################")
+    print(paste0("     Ciclo: ",i, " - Profundidade: ", profundidade[j]))
+    print("##########################################")
+    print("======== Análise de correlação linear ========== ")
+    corrplot::corrplot(mc)
+    
+    print("======== Análise de Agrupamento Hierárquico ========== ")
+    da_pad<-decostand(da, 
+                      method = "standardize",
+                      na.rm=TRUE)
+    da_pad_euc<-vegdist(da_pad,"euclidean") 
+    da_pad_euc_ward<-hclust(da_pad_euc, method="ward.D")
+    plot(da_pad_euc_ward, 
+         ylab="Distância Euclidiana",
+         xlab="Acessos", hang=-1,
+         col="blue", las=1,
+         cex=.6,lwd=1.5);box()
+    grupo<-cutree(da_pad_euc_ward,3)
+    
+    
+    print("======== Análise de Componentes Principais ========== ")
+    pca <-  prcomp(da_pad,scale.=T)
+    # Autovalores
+    eig<-pca$sdev^2
+    print("==== Autovalores ====")
+    print(round(eig,3))
+    print("==== % da variância explicada ====")
+    ve<-eig/sum(eig)
+    print(round(ve,4))
+    print("==== % da variância explicada acumulada ====")
+    print(round(cumsum(ve),4)*100)
+    print("==== Poder Discriminante ====")
+    mcor<-cor(da_pad,pca$x)
+    corrplot(mcor)
+    print("==== screeplot ====")
+    screeplot(pca)
+    abline(h=1)
+    print("==== Gráfico Biplot ====")
+    pc1V<-cor(da_pad,pca$x)[,1]/sd(cor(da_pad,pca$x)[,1])
+    pc2V<-cor(da_pad,pca$x)[,2]/sd(cor(da_pad,pca$x)[,2])
+    pc3V<-cor(da_pad,pca$x)[,3]/sd(cor(da_pad,pca$x)[,3])
+    pc1c<-pca$x[,1]/sd(pca$x[,1])
+    pc2c<-pca$x[,2]/sd(pca$x[,2])
+    pc3c<-pca$x[,3]/sd(pca$x[,3])
+    nv<-ncol(da) # número de variáveis utilizadas na análise
+    # plot(pc1V,pc2V,
+    #      xlim=c(min(-3,pc1V,pc1c),
+    #             max(pc1V,pc1c,5)),
+    #      ylim=c(min(pc2V,pc2c),
+    #             max(pc2V,pc2c)),pch="",las=1,
+    #      xlab=paste("PC1 (",round(100*ve[1],2),"%)",sep=""),
+    #      ylab=paste("PC2 (",round(100*ve[2],2),"%)",sep=""),
+    #      font.lab=2)
+    # abline(v=0,h=0)
+    # arrows(rep(0,nv),rep(0,nv),pc1V*.90,pc2V*.90,lwd=1.5,length=.1)
+    # text(pc1V,pc2V,names(pc1V),font=4)
+    # lv<-as.factor(grupo);nlv<-levels(lv)
+    
+    
+    # gráfico biplot
+    
+
+    bip<-data.frame(pc1c,pc2c,pc3c,nomes)
+    texto <- data.frame(
+      x = pc1V,
+      y = pc2V,
+      z = pc3V,
+      label = names(da)
+    )
+    graf<-bip %>% 
+      ggplot(aes(x=pc1c,y=pc2c,color=nomes))+
+      geom_point(aes(shape =nomes, color = nomes), size = 3)+ theme_minimal()+
+      scale_shape_manual(values=16:19)+
+      scale_color_manual(values=c("#009E73", "#999999","#D55E00", "#A6761D"))+
+      #annotate(geom="text", x=pc1V, y=pc2V, label=names(pc1V),
+      #            color="black",font=3)+
+      geom_vline(aes(xintercept=0),
+                 color="black", size=1)+
+      geom_hline(aes(yintercept=0),
+                 color="black", size=1)+
+      annotate(geom="segment",
+               x=rep(0,length(da)),
+               xend=texto$x,
+               y=rep(0,length(da)),
+               yend=texto$y,color="black",lwd=.5)+
+  geom_label(data=texto,aes(x=x,y=y,label=label),
+            color="black",angle=0,fontface="bold",size=4,fill="white")+
+  labs(x=paste("CP1 (",round(100*ve[1],2),"%)",sep=""),
+       y=paste("CP2 (",round(100*ve[2],2),"%)",sep=""),
+       color="",shape="")+
+  theme(legend.position = "top")
+    print(graf)
+    
+    print("==== Tabela da correlação dos atributos com cada PC ====")
+    ck<-sum(pca$sdev^2>=0.98)
+    tabelapca<-vector()
+    for( l in 1:ck) tabelapca<-cbind(tabelapca,mcor[,l])
+    colnames(tabelapca)<-paste(rep(c("PC"),ck),1:ck,sep="")
+    pcat<-round(tabelapca,3)
+    tabelapca<-tabelapca[order(abs(tabelapca[,1])),]
+    print(tabelapca)
+    
+  }
+}
+```
+
+
+

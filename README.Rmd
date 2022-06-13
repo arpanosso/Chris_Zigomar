@@ -31,8 +31,3 @@ knitr::opts_chunk$set(
 ## Análise Multivariadas - ANOVA
 
 #### [Análise por camada do banco de dados ](https://arpanosso.github.io/Chris_Zigomar/Docs/multivariada.html)
-
-
-### duas canadas
-
-### total

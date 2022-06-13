@@ -21,4 +21,8 @@
 
 ## Análise Multivariadas - ANOVA
 
-#### [Análise para todo o banco de dados](https://arpanosso.github.io/Chris_Zigomar/Docs/multivariada.html)
+#### [Análise por camada do banco de dados](https://arpanosso.github.io/Chris_Zigomar/Docs/multivariada.html)
+
+### duas canadas
+
+### total
